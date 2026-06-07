@@ -1,0 +1,5 @@
+runtime/ddns.exe
+runtime/config.json
+output/
+/runtime/nssm.exe
+/.idea/

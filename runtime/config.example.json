@@ -1,0 +1,39 @@
+{
+  "interval_seconds": 300,
+  "state_file": "..\\output\\state\\ddns-state.json",
+  "ip_probe": {
+    "type": "ipv4",
+    "timeout_seconds": 5,
+    "endpoints": [
+      "https://api.ipify.org",
+      "https://ifconfig.me/ip",
+      "https://checkip.amazonaws.com"
+    ]
+  },
+  "records": [
+    {
+      "provider": "dnspod",
+      "zone": "example.com",
+      "name": "home.example.com",
+      "type": "A",
+      "ttl": 600,
+      "record_line": "默认"
+    }
+  ],
+  "providers": {
+    "dnspod": {
+      "secret_id_env": "TENCENTCLOUD_SECRET_ID",
+      "secret_key_env": "TENCENTCLOUD_SECRET_KEY"
+    },
+    "aliyun": {
+      "access_key_id_env": "ALIYUN_ACCESS_KEY_ID",
+      "access_key_secret_env": "ALIYUN_ACCESS_KEY_SECRET"
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "..\\output\\logs\\ddns.log",
+    "max_lines": 2000,
+    "max_files": 5
+  }
+}
