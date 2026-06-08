@@ -76,6 +76,13 @@ func run(args []string) int {
 		}
 		fmt.Fprintf(os.Stdout, "service %q stopped\n", *serviceName)
 		return 0
+	case "restart-service":
+		if err := service.Restart(*serviceName); err != nil {
+			fmt.Fprintf(os.Stderr, "restart service: %v\n", err)
+			return 1
+		}
+		fmt.Fprintf(os.Stdout, "service %q restarted\n", *serviceName)
+		return 0
 	}
 
 	cfg, err := config.Load(*configPath)
@@ -123,6 +130,7 @@ func run(args []string) int {
 		}
 		return 0
 	case "run":
+		logger.Info("ddns started", "mode", command, "config", *configPath, "base_dir", cfg.BaseDir, "interval_seconds", cfg.IntervalSeconds)
 		p, err := buildPoller(cfg, httpClient, logger)
 		if err != nil {
 			logger.Error("init sync failed", "error", err)
@@ -134,6 +142,7 @@ func run(args []string) int {
 		}
 		return 0
 	case "service":
+		logger.Info("ddns started", "mode", command, "config", *configPath, "base_dir", cfg.BaseDir, "interval_seconds", cfg.IntervalSeconds)
 		p, err := buildPoller(cfg, httpClient, logger)
 		if err != nil {
 			logger.Error("init service sync failed", "error", err)
@@ -337,4 +346,5 @@ func usage() {
 	fmt.Fprintln(os.Stderr, "  ddns.exe uninstall-service [-name DDNS]")
 	fmt.Fprintln(os.Stderr, "  ddns.exe start-service [-name DDNS]")
 	fmt.Fprintln(os.Stderr, "  ddns.exe stop-service [-name DDNS]")
+	fmt.Fprintln(os.Stderr, "  ddns.exe restart-service [-name DDNS]")
 }

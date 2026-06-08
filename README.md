@@ -121,7 +121,7 @@ $env:ALIYUN_ACCESS_KEY_SECRET="your-access-key-secret"
 安装后 NSSM 会托管：
 
 ```powershell
-.\runtime\ddns.exe service -config .\runtime\config.json
+.\runtime\ddns.exe run -config .\runtime\config.json
 ```
 
 安装时可以传相对路径；程序注册到 NSSM 前会转成绝对路径，避免服务启动时找不到配置。
@@ -132,11 +132,51 @@ $env:ALIYUN_ACCESS_KEY_SECRET="your-access-key-secret"
 .\runtime\ddns.exe start-service
 ```
 
+如果服务已经在运行，`start-service` 会直接返回成功。
+
 停止服务：
 
 ```powershell
 .\runtime\ddns.exe stop-service
 ```
+
+如果服务已经停止，`stop-service` 会直接返回成功。
+
+重启服务：
+
+```powershell
+.\runtime\ddns.exe restart-service
+```
+
+如果服务状态显示为 `SERVICE_PAUSED`，不要点 Windows 服务管理器里的“恢复”。直接执行：
+
+```powershell
+.\runtime\ddns.exe restart-service
+```
+
+`restart-service` 会按停止后启动处理。
+
+如果启动时报：
+
+```text
+Unexpected status SERVICE_PAUSED in response to START control
+```
+
+先用管理员 PowerShell 刷新 NSSM 参数：
+
+```powershell
+.\runtime\ddns.exe install-service -config .\runtime\config.json
+```
+
+然后查看 NSSM 捕获的启动输出：
+
+```powershell
+Get-Content -Tail 80 .\output\logs\service-stdout.log
+Get-Content -Tail 80 .\output\logs\service-stderr.log
+Get-Content -Tail 80 .\output\logs\ddns.log
+```
+
+这个状态通常表示被 NSSM 托管的进程启动后很快退出，真实原因会在上面的日志里。
 
 卸载服务：
 
@@ -147,6 +187,8 @@ $env:ALIYUN_ACCESS_KEY_SECRET="your-access-key-secret"
 重复执行卸载是安全的；服务不存在时也会直接返回成功。
 
 服务模式会按 `interval_seconds` 常驻轮询。
+
+不要在 Windows 服务管理器里使用“暂停/恢复”。这里的“恢复”是 Continue，不是 Restart；NSSM 托管的 DDNS 服务请使用 `restart-service`。
 
 如果调整过目录后服务启动失败，先用管理员 PowerShell 重新刷新服务配置：
 
@@ -159,6 +201,14 @@ $env:ALIYUN_ACCESS_KEY_SECRET="your-access-key-secret"
 
 ```powershell
 sc.exe qc DDNS
+```
+
+可以检查 NSSM 实际托管的程序参数：
+
+```powershell
+.\runtime\nssm.exe get DDNS Application
+.\runtime\nssm.exe get DDNS AppParameters
+.\runtime\nssm.exe get DDNS AppDirectory
 ```
 
 确认服务是否已经卸载：

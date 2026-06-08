@@ -27,10 +27,12 @@ func (p *Poller) RunLoop(ctx context.Context) error {
 			p.logger().Error("sync round failed", "error", err)
 		}
 
+		p.logger().Info("next check scheduled", "after", interval.String(), "next_at", time.Now().Add(interval).Format(time.RFC3339))
 		timer := time.NewTimer(interval)
 		select {
 		case <-ctx.Done():
 			timer.Stop()
+			p.logger().Info("poller stopped")
 			return nil
 		case <-timer.C:
 		}
